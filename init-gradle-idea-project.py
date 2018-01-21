@@ -8,9 +8,9 @@ import argparse
 logging.basicConfig(level=logging.DEBUG)
 
 
-def create_dir(artifact):
+def create_dir(artifact_id):
     current_path = os.getcwd()
-    project_path = os.path.join(current_path, artifact)
+    project_path = os.path.join(current_path, artifact_id)
     if os.path.exists(project_path):
         logging.error('ProjectDir:{} is existed'.format(project_path))
         sys.exit(1)
@@ -19,8 +19,8 @@ def create_dir(artifact):
         logging.info('ProjectDir:{} is created'.format(project_path))
 
 
-def gradle_init(artifact):
-    os.chdir(artifact)
+def gradle_init(artifact_id):
+    os.chdir(artifact_id)
     logging.info(os.getcwd())
     try:
         subprocess.run(["gradle", "init"], check=True)
@@ -72,10 +72,10 @@ def gradle_build_edit():
 # def sub(text):
 #     return text.format_map(safesub(sys._getframe(1).f_locals))
 
-def mk_project_dir_file(group_id, artifact):
+def mk_project_dir_file(group_id, artifact_id):
     current_path = os.getcwd()
     # create code directory
-    package_path = 'src/main/java/' + group_id.replace('.', '/') + '/' + artifact
+    package_path = 'src/main/java/' + group_id.replace('.', '/') + '/' + artifact_id
     code_path = os.path.join(current_path, package_path)
     res_path = os.path.join(current_path, 'src/main/resources')
     os.makedirs(code_path)
@@ -93,7 +93,7 @@ def mk_project_dir_file(group_id, artifact):
             SpringApplication.run(Application.class, args);
         }
     }
-    """%(artifact)
+    """%(artifact_id)
     logging.info('create application.java')
     with open(os.path.join(package_path, 'application.java'), mode="w", encoding='utf-8') as f:
         try:
@@ -121,28 +121,28 @@ def gradle_idea():
         sys.exit(1)
 
 
-def open_idea_project(artifact):
+def open_idea_project(artifact_id):
     try:
-        subprocess.run(["open", artifact + ".ipr"], check=True)
+        subprocess.run(["open", artifact_id + ".ipr"], check=True)
     except subprocess.CalledProcessError as e:
         logging.error('open init error:{}'.format(e))
         sys.exit(1)
 
 
-def init_project(group_id, artifact):
-    logging.info('Project:{} is begin init'.format(artifact))
-    create_dir(artifact)
-    gradle_init(artifact)
+def init_project(group_id, artifact_id):
+    logging.info('Project:{} is begin init'.format(artifact_id))
+    create_dir(artifact_id)
+    gradle_init(artifact_id)
     gradle_build_edit()
-    mk_project_dir_file(group_id, artifact)
+    mk_project_dir_file(group_id, artifact_id)
     gradle_idea()
-    open_idea_project(artifact)
-    logging.info('Project:{} is completed init'.format(artifact))
+    open_idea_project(artifact_id)
+    logging.info('Project:{} is completed init'.format(artifact_id))
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='create spring boot project')
     parser.add_argument('-g', '--group_id', required=True, help='input group_id')
-    parser.add_argument("-a", "--artifact", required=True, help='input artifact')
+    parser.add_argument("-a", "--artifact_id", required=True, help='input artifact_id')
     args = parser.parse_args()
-    init_project(args.group_id, args.artifact)
+    init_project(args.group_id, args.artifact_id)
